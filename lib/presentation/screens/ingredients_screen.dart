@@ -20,6 +20,7 @@ class IngredientsScreen extends StatelessWidget {
         priceTL: 110.0,
         priceUSD: 3.95,
         category: FoodCategory.Ingredient,
+        isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/buttermilk.png',
@@ -32,6 +33,7 @@ class IngredientsScreen extends StatelessWidget {
         priceTL: 110.0,
         priceUSD: 3.95,
         category: FoodCategory.Ingredient,
+        isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/lettuce.png',
@@ -44,6 +46,7 @@ class IngredientsScreen extends StatelessWidget {
         priceTL: 110.0,
         priceUSD: 3.95,
         category: FoodCategory.Ingredient,
+        isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/tomato.png',
@@ -56,6 +59,7 @@ class IngredientsScreen extends StatelessWidget {
         priceTL: 110.0,
         priceUSD: 3.95,
         category: FoodCategory.Ingredient,
+        isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/mayonnaise.png',
@@ -68,6 +72,7 @@ class IngredientsScreen extends StatelessWidget {
         priceTL: 110.0,
         priceUSD: 3.95,
         category: FoodCategory.Ingredient,
+        isInCart: false,
       ),
     ];
     return Scaffold(

@@ -19,6 +19,7 @@ class FoodItem {
   final double priceTL;
   final double priceUSD;
   final FoodCategory category;
+  bool isInCart;
 
   FoodItem({
     required this.imageName,
@@ -31,6 +32,7 @@ class FoodItem {
     required this.priceTL,
     required this.priceUSD,
     required this.category,
+    required this.isInCart,
   });
 }
 
@@ -46,6 +48,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Burger,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/beef_burger.png',
@@ -58,6 +61,7 @@ final List<FoodItem> foodItems = [
     priceTL: 125.0,
     priceUSD: 4.49,
     category: FoodCategory.Burger,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/fries.png',
@@ -70,6 +74,7 @@ final List<FoodItem> foodItems = [
     priceTL: 45.0,
     priceUSD: 1.60,
     category: FoodCategory.Fries,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/mushroom_fried_chicken.png',
@@ -82,6 +87,7 @@ final List<FoodItem> foodItems = [
     priceTL: 120.0,
     priceUSD: 4.20,
     category: FoodCategory.Chicken,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/fillet_fried_chicken.png',
@@ -94,6 +100,7 @@ final List<FoodItem> foodItems = [
     priceTL: 78.0,
     priceUSD: 2.70,
     category: FoodCategory.Chicken,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/garlic_fried_chicken.png',
@@ -106,6 +113,7 @@ final List<FoodItem> foodItems = [
     priceTL: 102.0,
     priceUSD: 3.50,
     category: FoodCategory.Chicken,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/crispy_chicken.png',
@@ -118,6 +126,7 @@ final List<FoodItem> foodItems = [
     priceTL: 120.0,
     priceUSD: 4.20,
     category: FoodCategory.Chicken,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/original_chicken_bucket.png',
@@ -130,6 +139,7 @@ final List<FoodItem> foodItems = [
     priceTL: 115.0,
     priceUSD: 4.00,
     category: FoodCategory.Chicken,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/cheese_burger.png',
@@ -142,6 +152,7 @@ final List<FoodItem> foodItems = [
     priceTL: 165.0,
     priceUSD: 5.60,
     category: FoodCategory.Burger,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/beef_burger.png',
@@ -154,6 +165,7 @@ final List<FoodItem> foodItems = [
     priceTL: 145.0,
     priceUSD: 5.20,
     category: FoodCategory.Burger,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/smoke_beef_burger.png',
@@ -166,6 +178,7 @@ final List<FoodItem> foodItems = [
     priceTL: 170.0,
     priceUSD: 5.95,
     category: FoodCategory.Burger,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/spicy_beef_burger.png',
@@ -178,6 +191,7 @@ final List<FoodItem> foodItems = [
     priceTL: 100.0,
     priceUSD: 3.50,
     category: FoodCategory.Burger,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/chicken_burger.png',
@@ -190,6 +204,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Burger,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/foods/cocacola.png',
@@ -202,6 +217,7 @@ final List<FoodItem> foodItems = [
     priceTL: 35.0,
     priceUSD: 1.20,
     category: FoodCategory.Soda,
+    isInCart: true,
   ),
   FoodItem(
     imageName: 'assets/images/foods/fanta.png',
@@ -214,6 +230,7 @@ final List<FoodItem> foodItems = [
     priceTL: 35.0,
     priceUSD: 1.20,
     category: FoodCategory.Soda,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/ingredients/temp/artisan_bun.png',
@@ -226,6 +243,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Ingredient,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/ingredients/temp/buttermilk.png',
@@ -238,6 +256,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Ingredient,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/ingredients/temp/lettuce.png',
@@ -250,6 +269,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Ingredient,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/ingredients/temp/tomato.png',
@@ -262,6 +282,7 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Ingredient,
+    isInCart: false,
   ),
   FoodItem(
     imageName: 'assets/images/ingredients/temp/mayonnaise.png',
@@ -274,5 +295,6 @@ final List<FoodItem> foodItems = [
     priceTL: 110.0,
     priceUSD: 3.95,
     category: FoodCategory.Ingredient,
+    isInCart: false,
   ),
 ];

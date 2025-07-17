@@ -11,12 +11,16 @@ class IngredientSelector extends StatefulWidget {
 
 class _IngredientSelectorState extends State<IngredientSelector> {
   List<String> listem = [
-    "Cheese-Stuffed_Beef_Patty.png",
-    "Chicken_Katsu.png",
-    "Chorizo_Patty_spicy.png",
-    "Crispy_Fried_Chicken_Fillet.png",
-    "Salmon_Steak.png",
-    "Soft_Shell_Crab.png",
+    "assets/images/ingredients/burger_patty/Cheese-Stuffed_Beef_Patty.png",
+    "assets/images/ingredients/burger_patty/Chicken_Katsu.png",
+    "assets/images/ingredients/burger_patty/Chorizo_Patty_spicy.png",
+    "assets/images/ingredients/burger_patty/Crispy_Fried_Chicken_Fillet.png",
+    "assets/images/ingredients/burger_patty/Salmon_Steak.png",
+    "assets/images/ingredients/burger_patty/Soft_Shell_Crab.png",
+    "assets/images/ingredients/toppings/cheese.png",
+    "assets/images/ingredients/toppings/lettuce.png",
+    "assets/images/ingredients/toppings/tomato.png",
+    "assets/images/ingredients/toppings/tomato2.png",
   ];
 
   int _currentPage = 0;
@@ -36,6 +40,16 @@ class _IngredientSelectorState extends State<IngredientSelector> {
     // TODO: implement dispose
     super.dispose();
     _pageController.dispose();
+  }
+
+  final List<String> _imageList = [
+    "assets/images/ingredients/buns/bottom_bun.png",
+    "assets/images/ingredients/buns/top_bun.png",
+  ];
+  void _addImage(String img) {
+    setState(() {
+      _imageList.insert(_imageList.length - 1, img);
+    });
   }
 
   @override
@@ -65,6 +79,25 @@ class _IngredientSelectorState extends State<IngredientSelector> {
                 itemBuilder: (context, index) {
                   return carouselView(index);
                 },
+              ),
+            ),
+
+            SizedBox(
+              height: 300,
+              width: 300,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  for (int i = 0; i < _imageList.length; i++)
+                    Positioned(
+                      bottom: i * 15.0,
+                      child: Image.asset(
+                        _imageList[i],
+                        width: 100,
+                        height: 100,
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -112,7 +145,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/${listem[index]}"),
+                  image: AssetImage(listem[index]),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -123,7 +156,13 @@ class _IngredientSelectorState extends State<IngredientSelector> {
           padding: const EdgeInsets.only(top: 20),
           child: Text("deneme 1"),
         ),
-        Padding(padding: const EdgeInsets.all(10), child: Text("deneme 2")),
+        ElevatedButton(
+          onPressed: () {
+            _addImage(listem[index]);
+            setState(() {});
+          },
+          child: const Text("Add Ingredient"),
+        ),
       ],
     );
   }

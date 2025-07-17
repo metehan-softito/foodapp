@@ -68,6 +68,7 @@ flutter:
     - assets/images/
     - assets/images/foods/
     - assets/images/ingredients/
+    - assets/images/ingredients/buns/
     - assets/images/ingredients/temp/
     - assets/images/ingredients/burger_patty/
     - assets/images/ingredients/sushi/
@@ -75,6 +76,7 @@ flutter:
     - assets/images/logos/
     - assets/images/profile_images/
     - assets/rive/
+    - images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

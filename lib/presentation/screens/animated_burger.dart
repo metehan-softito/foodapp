@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kendin_ye/main.dart';
 import 'package:rive/rive.dart';
 
 class AnimatedBurger extends StatefulWidget {

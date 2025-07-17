@@ -1,7 +1,12 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:kendin_ye/core/localization/app_localizations.dart';
 import 'package:kendin_ye/data/models/food_item.dart';
 import 'package:kendin_ye/data/models/user.dart';
+import 'package:kendin_ye/presentation/screens/burger_screen.dart';
+import 'package:kendin_ye/presentation/screens/pizza_screen.dart';
+import 'package:kendin_ye/presentation/screens/sushi_screen.dart';
+import 'package:kendin_ye/presentation/widgets/custom_bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
   final User user;
@@ -11,88 +16,274 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> animation;
+  late Animation<double> scalAnimation;
+
+  bool isSideMenuClosed = true;
+
+  @override
+  void initState() {
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(microseconds: 200))
+          ..addListener(() {
+            setState(() {});
+          });
+    animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+    scalAnimation = Tween<double>(begin: 1, end: 0.8).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildContentByIndex(int index) {
+    switch (index) {
+      case 2:
+        return SafeArea(
+          child: Container(
+            color: Color(0xFFFFFAF0), //white
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildMyAppBar(context),
+                _buildCategoryIcons(context),
+                _buildSearchBar(),
+                _buildBestDealsSection(),
+                const SizedBox(height: 8),
+                Expanded(child: _buildFoodList()),
+              ],
+            ),
+          ),
+        );
+      case 0:
+        return BurgerScreen();
+      case 1:
+        return PizzaScreen();
+      case 3:
+        return SushiScreen();
+      default:
+        return Container();
+    }
+  }
+
+  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFF7700),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
-        title: Text(
-          '${AppLocalizations.of(context).translate("hello")}, ${widget.user.firstName}!',
-          style: const TextStyle(
-            fontFamily: 'SegoeUI',
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          PopupMenuButton<int>(
-            offset: const Offset(0, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            icon: CircleAvatar(
-              backgroundImage: AssetImage(widget.user.profileImage),
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem<int>(
-                value: 0,
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundImage: AssetImage(widget.user.profileImage),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(AppLocalizations.of(context).translate("profile")),
-                  ],
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 1,
-                child: Row(
-                  children: [
-                    const Icon(Icons.settings, color: Colors.black54),
-                    const SizedBox(width: 10),
-                    Text(AppLocalizations.of(context).translate("settings")),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem<int>(
-                value: 2,
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout, color: Colors.black54),
-                    const SizedBox(width: 10),
-                    Text(AppLocalizations.of(context).translate("logout")),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (value) {
-              if (value == 2) {
-                Navigator.pushReplacementNamed(context, '/');
+      /*bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            if (index == 4) {
+              if (isSideMenuClosed) {
+                _animationController.forward();
+              } else {
+                _animationController.reverse();
               }
-              // You can add logic for Profile and Settings later
-            },
-          ),
-        ],
-      ),
-
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+              setState(() {
+                isSideMenuClosed = !isSideMenuClosed;
+              });
+            } else {
+              _selectedIndex = index;
+            }
+          });
+        },
+      ),*/
+      backgroundColor: const Color(0xFFFFC58B),
+      body: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: Stack(
           children: [
-            _buildCategoryIcons(context),
-            _buildSearchBar(),
-            _buildBestDealsSection(),
-            const SizedBox(height: 8),
-            Expanded(child: _buildFoodList()),
+            AnimatedPositioned(
+              duration: Duration(microseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              width: 288,
+              left: isSideMenuClosed ? -288 : 0,
+              height: MediaQuery.of(context).size.height,
+              child: _buildShoppingCart(),
+            ),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(animation.value - 30 * animation.value * pi / 180),
+              child: Transform.translate(
+                offset: Offset(animation.value * 265, 0),
+                child: Transform.scale(
+                  scale: scalAnimation.value,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      isSideMenuClosed ? 0 : 24,
+                    ),
+                    child: SafeArea(
+                      child: Container(
+                        color: Color(0xFFFFFAF0), //white
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildMyAppBar(context),
+                            _buildCategoryIcons(context),
+                            _buildSearchBar(),
+                            _buildBestDealsSection(),
+                            const SizedBox(height: 8),
+                            Expanded(child: _buildFoodList()),
+                          ],
+                        ),
+                      ),
+                    ),
+                    //_buildContentByIndex(_selectedIndex),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyAppBar(BuildContext context) {
+    return Material(
+      elevation: 4,
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+      color: const Color(0xFFFF7700),
+      child: Container(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+        height: kToolbarHeight + 28, // similar to AppBar height
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${AppLocalizations.of(context).translate("hello")}, ${widget.user.firstName}!',
+              style: const TextStyle(
+                fontFamily: 'SegoeUI',
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
+            Row(
+              children: [
+                // Cart Icon with badge
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.shopping_cart),
+                      color: Colors.white,
+                      onPressed: () {
+                        if (isSideMenuClosed) {
+                          _animationController.forward();
+                        } else {
+                          _animationController.reverse();
+                        }
+                        setState(() {
+                          isSideMenuClosed = !isSideMenuClosed;
+                        });
+                      },
+                    ),
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: const Text(
+                          '3',
+                          style: TextStyle(color: Colors.white, fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Profile Popup
+                PopupMenuButton<int>(
+                  offset: const Offset(0, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  icon: CircleAvatar(
+                    backgroundImage: AssetImage(widget.user.profileImage),
+                  ),
+                  itemBuilder: (context) => [
+                    PopupMenuItem<int>(
+                      value: 0,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundImage: AssetImage(
+                              widget.user.profileImage,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            AppLocalizations.of(context).translate("profile"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<int>(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.settings, color: Colors.black54),
+                          const SizedBox(width: 10),
+                          Text(
+                            AppLocalizations.of(context).translate("settings"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<int>(
+                      value: 2,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout, color: Colors.black54),
+                          const SizedBox(width: 10),
+                          Text(
+                            AppLocalizations.of(context).translate("logout"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 2) {
+                      Navigator.pushReplacementNamed(context, '/');
+                    }
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -138,23 +329,52 @@ class _MainScreenState extends State<MainScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: categories.map((cat) {
-            return Padding(
+          children: [
+            ...categories.map((cat) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/category',
+                      arguments: cat['category'], // passing enum
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Image.asset(cat['icon'], width: 30, height: 30),
+                      const SizedBox(height: 4),
+                      Text(
+                        cat['label'],
+                        style: const TextStyle(
+                          fontFamily: 'SegoeUI',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xffff7700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/category',
-                    arguments: cat['category'], // passing enum
-                  );
+                  Navigator.pushNamed(context, '/pizza');
                 },
                 child: Column(
                   children: [
-                    Image.asset(cat['icon'], width: 30, height: 30),
+                    Image.asset(
+                      "assets/icons/pizza_renkli.png",
+                      width: 30,
+                      height: 30,
+                    ),
                     const SizedBox(height: 4),
                     Text(
-                      cat['label'],
+                      "Pizza",
                       style: const TextStyle(
                         fontFamily: 'SegoeUI',
                         fontSize: 12,
@@ -165,8 +385,35 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
               ),
-            );
-          }).toList(),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/burger');
+                },
+                child: Column(
+                  children: [
+                    Image.asset(
+                      "assets/icons/burger_renkli.png",
+                      width: 30,
+                      height: 30,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Burger",
+                      style: const TextStyle(
+                        fontFamily: 'SegoeUI',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xffff7700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -377,6 +624,168 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildShoppingCart() {
+    // Filter the cart items
+    final List<FoodItem> cartItems = foodItems
+        .where((item) => item.isInCart)
+        .toList();
+
+    return Container(
+      width: 288,
+      height: double.infinity,
+      color: const Color(0xFFFFC58B), // Light peach background
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 50),
+            // Toggle Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    "Shopping Cart",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5C3D00),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  iconSize: 40,
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: () {
+                    if (isSideMenuClosed) {
+                      _animationController.forward();
+                    } else {
+                      _animationController.reverse();
+                    }
+                    setState(() {
+                      isSideMenuClosed = !isSideMenuClosed;
+                    });
+                  },
+                ),
+              ],
+            ),
+
+            const Divider(),
+
+            // Cart List
+            Expanded(
+              child: cartItems.isEmpty
+                  ? const Center(child: Text("Your cart is empty"))
+                  : ListView.builder(
+                      itemCount: cartItems.length,
+                      itemBuilder: (context, index) {
+                        final item = cartItems[index];
+                        return Dismissible(
+                          key: Key(item.name),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction) {
+                            setState(() {
+                              // Set isInCart = false in the original list
+                              final int originalIndex = foodItems.indexOf(item);
+                              if (originalIndex != -1) {
+                                foodItems[originalIndex].isInCart = false;
+                              }
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("${item.name} removed from cart"),
+                              ),
+                            );
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                          child: ListTile(
+                            leading: Image.asset(
+                              item.imageName,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
+                            title: Text(item.name),
+                            subtitle: Text(
+                              "₺${item.priceTL.toStringAsFixed(2)}",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(thickness: 1.5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5C3D00),
+                        ),
+                      ),
+                      Text(
+                        '₺${cartItems.fold(0.0, (sum, item) => sum + item.priceTL).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5C3D00),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xffff7700),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        // Add checkout logic here
+                      },
+                      child: const Text(
+                        'Checkout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 50),
+          ],
+        ),
+      ),
     );
   }
 }

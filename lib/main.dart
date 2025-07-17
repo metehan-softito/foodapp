@@ -3,11 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kendin_ye/core/localization/app_localizations.dart';
 import 'package:kendin_ye/core/theme/app_theme.dart';
 import 'package:kendin_ye/presentation/navigation/app_router.dart';
-import 'package:kendin_ye/presentation/screens/burger_login_screen.dart';
-import 'package:kendin_ye/presentation/screens/main_screen.dart';
 
 // GlobalKey to access the app state from anywhere
-final GlobalKey<_MyAppState> appKey = GlobalKey<_MyAppState>();
+final GlobalKey<MyAppState> appKey = GlobalKey<MyAppState>();
 
 void main() {
   runApp(MyApp(key: appKey));
@@ -17,10 +15,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   ThemeMode themeMode = ThemeMode.light;
   Locale _locale = const Locale('en');
 
