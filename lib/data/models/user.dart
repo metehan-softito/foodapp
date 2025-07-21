@@ -37,6 +37,15 @@ User? authenticateUser(String username, String password) {
   }
 }
 
+void updateUser(User user) {
+  final index = registeredUsers.indexWhere((u) => u.username == user.username);
+  if (index != -1) {
+    registeredUsers[index] = user;
+  } else {
+    throw ('Bunun olmaması lazım!',);
+  }
+}
+
 void registerUser(User user) {
   registeredUsers.add(user);
 }

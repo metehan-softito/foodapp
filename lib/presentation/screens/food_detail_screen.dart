@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kendin_ye/core/localization/app_localizations.dart';
 import 'package:kendin_ye/data/models/food_item.dart';
 
 class FoodDetailScreen extends StatefulWidget {
@@ -34,19 +35,21 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context).translate;
+    final isTurkish = AppLocalizations.of(context).isTurkish;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
       appBar: AppBar(
-        backgroundColor: const Color(0x88ff7700),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         elevation: 0,
         centerTitle: true,
         title: Text(
-          widget.foodItem.name,
+          isTurkish ? widget.foodItem.nameTr : widget.foodItem.name,
           style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
         ),
       ),
       body: Container(
-        color: const Color(0x88ff7700),
+        color: Theme.of(context).colorScheme.secondary,
         child: SafeArea(
           child: Column(
             children: [
@@ -75,7 +78,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     height: _currentPage == index ? 10 : 8,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? Color(0xffff7700)
+                          ? Theme.of(context).primaryColor
                           : Colors.grey,
                       shape: BoxShape.circle,
                     ),
@@ -99,17 +102,21 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.foodItem.description,
+                            isTurkish
+                                ? widget.foodItem.descriptionTr
+                                : widget.foodItem.description,
                             style: const TextStyle(fontSize: 16),
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            "Price: \$${widget.foodItem.priceUSD.toStringAsFixed(2)}",
+                            isTurkish
+                                ? "${translate('price')}: ${widget.foodItem.priceTL.toStringAsFixed(2)} ₺"
+                                : "${translate('price')}: \$ ${widget.foodItem.priceUSD.toStringAsFixed(2)}",
                           ),
                           Row(
                             children: [
                               Text(
-                                "Rating: ",
+                                "${translate('rating')}: ",
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Row(
@@ -143,7 +150,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                       });
                                     },
                                   ),
-                                  Text('$likeCount likes'),
+                                  Text('$likeCount ${translate('likes')}'),
                                 ],
                               ),
                             ],
@@ -162,8 +169,8 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Center(
-                            child: const Text(
-                              "Nutritional Information",
+                            child: Text(
+                              translate("nutritional_information"),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -176,19 +183,19 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             children: <Widget>[
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "550 CAL.",
+                                        "${widget.foodItem.calories} CAL.",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
-                                      Text("Calories"),
+                                      Text(translate("calories")),
                                     ],
                                   ),
                                   Column(
@@ -202,7 +209,9 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                           fontSize: 16,
                                         ),
                                       ),
-                                      Text("Total Fat (39% DV)"),
+                                      Text(
+                                        "${translate('total_fat')} (39% DV)",
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -210,7 +219,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                               const SizedBox(height: 20),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -222,7 +231,9 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                           fontSize: 16,
                                         ),
                                       ),
-                                      Text("Total Carbs (16% DV)"),
+                                      Text(
+                                        "${translate('total_carbs')} (16% DV)",
+                                      ),
                                     ],
                                   ),
                                   Column(
@@ -248,9 +259,9 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     ),
 
                     // Page 3: Placeholder
-                    const Center(
+                    Center(
                       child: Text(
-                        "Coming Soon...",
+                        translate('coming_soon'),
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -268,7 +279,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     ).pushNamed('/ingredients', arguments: widget.foodItem);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF7700),
+                    backgroundColor: Theme.of(context).primaryColor,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
@@ -277,9 +288,12 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    "View Ingredients",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  child: Text(
+                    AppLocalizations.of(context).translate('view_ingredients'),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),

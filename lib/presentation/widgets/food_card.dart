@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kendin_ye/core/localization/app_localizations.dart';
 import '../../data/models/food_item.dart';
 
 class FoodCard extends StatelessWidget {
@@ -9,6 +10,8 @@ class FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context).translate;
+    final isTurkish = AppLocalizations.of(context).isTurkish;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -25,16 +28,18 @@ class FoodCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            item.name,
+            isTurkish ? item.nameTr : item.name,
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
-            '\$. ${item.priceUSD.toStringAsFixed(2)}',
-            style: const TextStyle(
-              color: Color(0xffff7700),
+            isTurkish
+                ? '${item.priceTL.toStringAsFixed(2)} ₺'
+                : '\$ ${item.priceUSD.toStringAsFixed(2)}',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),

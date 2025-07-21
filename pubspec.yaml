@@ -35,10 +35,12 @@ dependencies:
   intl: ^0.20.2
   custom_refresh_indicator: ^1.0.0
   rive: ^0.12.4
+  file_selector: ^0.9.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  dio: ^5.8.0+1
 
 dev_dependencies:
   flutter_test:
@@ -68,13 +70,21 @@ flutter:
     - assets/images/
     - assets/images/foods/
     - assets/images/ingredients/
+    - assets/images/ingredients/sauces/
     - assets/images/ingredients/buns/
+    - assets/images/ingredients/buns/realistic/
     - assets/images/ingredients/temp/
     - assets/images/ingredients/burger_patty/
-    - assets/images/ingredients/sushi/
+    - assets/images/ingredients/burger_patty/realistic/
     - assets/images/ingredients/toppings/
+    - assets/images/ingredients/sushi/
+    - assets/images/ingredients/sushi/maki_rolls/
+    - assets/images/ingredients/sushi/nigiri/
+    - assets/images/ingredients/sushi/temari/
+    - assets/images/ingredients/sushi/vegetarian/
     - assets/images/logos/
     - assets/images/profile_images/
+    - assets/data/
     - assets/rive/
     - images/
   #   - images/a_dot_ham.jpeg

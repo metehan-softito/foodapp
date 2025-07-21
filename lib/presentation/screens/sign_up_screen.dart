@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:kendin_ye/data/models/user.dart';
 import '../../core/localization/app_localizations.dart';
@@ -20,6 +23,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  String? _profileImagePath =
+      'assets/images/profile_images/default_profile.jpeg';
   bool _acceptTerms = false;
 
   @override
@@ -33,6 +38,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final XFile? file = await openFile(
+      acceptedTypeGroups: [
+        XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'jpeg']),
+      ],
+    );
+    if (file != null) {
+      setState(() => _profileImagePath = file.path);
+    }
+  }
+
   void _submit() async {
     final t = AppLocalizations.of(context).translate;
     if (_formKey.currentState!.validate() && _acceptTerms) {
@@ -42,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         phoneNumber: _telController.text.trim(),
-        profileImage: "assets/images/profile_images/default_profile.png",
+        profileImage: _profileImagePath ?? '',
       );
       registerUser(newUser);
       ScaffoldMessenger.of(
@@ -71,6 +87,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context).translate;
+    ImageProvider avatar = _profileImagePath!.startsWith('assets/')
+        ? AssetImage(_profileImagePath!)
+        : FileImage(File(_profileImagePath!));
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -92,14 +111,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const Spacer(),
                           Text(
                             t('create_account'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFFF7700),
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
                           const Spacer(flex: 2),
                         ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Profile Image Picker
+                      Center(
+                        child: GestureDetector(
+                          onTap: _pickImage,
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surface,
+                            backgroundImage: avatar,
+                            child: avatar == null
+                                ? Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  )
+                                : null,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
@@ -186,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF7700),
+                    backgroundColor: Theme.of(context).primaryColor,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 14,
@@ -197,10 +239,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   child: Text(
                     t('sign_up'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ),

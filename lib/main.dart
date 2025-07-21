@@ -50,7 +50,7 @@ class MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      onGenerateRoute: AppRouter.generateRoute, // ✅ THIS LINE
+      onGenerateRoute: AppRouter.generateRoute,
       initialRoute: '/',
     );
   }

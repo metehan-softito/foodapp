@@ -49,7 +49,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                         height: 4,
                         width: selectedIndex == index ? 20 : 0,
                         decoration: BoxDecoration(
-                          color: Color(0xffff7700),
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -82,7 +82,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? const Color(0xFFFF7700).withOpacity(0.1)
+                        ? const Theme.of(context).primaryColor.withOpacity(0.1)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),

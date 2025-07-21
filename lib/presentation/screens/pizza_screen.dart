@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:kendin_ye/core/localization/app_localizations.dart';
 
 class PizzaScreen extends StatefulWidget {
   const PizzaScreen({super.key});
@@ -89,6 +90,8 @@ class _PizzaScreenState extends State<PizzaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context).translate;
+    final isTurkish = AppLocalizations.of(context).isTurkish;
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: Column(
@@ -118,7 +121,7 @@ class _PizzaScreenState extends State<PizzaScreen> {
                 top: 40,
                 left: 20,
                 child: CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
@@ -129,7 +132,7 @@ class _PizzaScreenState extends State<PizzaScreen> {
                 top: 40,
                 right: 20,
                 child: CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
                   child: IconButton(
                     icon: const Icon(Icons.favorite_border),
                     onPressed: () {},
@@ -161,7 +164,10 @@ class _PizzaScreenState extends State<PizzaScreen> {
                   },
                   child: Text(
                     "-",
-                    style: TextStyle(fontSize: 30, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
                 ),
                 Text(
@@ -169,7 +175,7 @@ class _PizzaScreenState extends State<PizzaScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
                 TextButton(
@@ -180,7 +186,10 @@ class _PizzaScreenState extends State<PizzaScreen> {
                   },
                   child: Text(
                     "+",
-                    style: TextStyle(fontSize: 30, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -191,8 +200,8 @@ class _PizzaScreenState extends State<PizzaScreen> {
 
           Expanded(
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onPrimary,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(40),
                   topRight: Radius.circular(40),
@@ -322,13 +331,15 @@ class _PizzaScreenState extends State<PizzaScreen> {
                             ),
                           ),
                           onPressed: () {},
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.shopping_bag,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
-                          label: const Text(
+                          label: Text(
                             "Add to Bag",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ],

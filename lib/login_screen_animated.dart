@@ -47,15 +47,15 @@ class _LoginScreenState extends State<LoginScreenAnimated> {
             margin: const EdgeInsets.only(top: 30, left: 20, right: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSecondary,
             ),
             child: Center(
               child: Text(
                 "${index + 1}asd",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 56,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ),
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreenAnimated> {
               title: Text("Your Title Here"),
               background: Container(
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: Colors.Theme.of(context).colorScheme.onPrimary,
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(120),
                   ),

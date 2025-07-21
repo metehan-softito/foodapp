@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kendin_ye/core/localization/app_localizations.dart';
 import 'package:kendin_ye/data/models/food_item.dart';
 
 class IngredientsScreen extends StatelessWidget {
@@ -8,90 +9,107 @@ class IngredientsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context).translate;
+    final isTurkish = AppLocalizations.of(context).isTurkish;
     final List<FoodItem> ingredients = [
       FoodItem(
         imageName: 'assets/images/ingredients/temp/artisan_bun.png',
         name: 'Artisan Bun',
+        nameTr: 'Burger Ekmeği',
         description: 'Grilled bun with susams.',
+        descriptionTr: 'Kızarmış susamlı ekmek.',
         calories: 450,
         nutrients: 'Protein, Carbs, Fat',
+        nutrientsTr: 'Protein, Karbonhidrat, Yağ',
         rating: 4.2,
         isLiked: true,
         priceTL: 110.0,
         priceUSD: 3.95,
-        category: FoodCategory.Ingredient,
+        category: FoodCategory.ingredient,
         isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/buttermilk.png',
         name: 'Buttermilk Crispy Chicken Fillet',
+        nameTr: 'Çıtır Tavuk Parçaları',
         description: 'Perfectly cooked chicken fillets.',
+        descriptionTr: 'Mükkemmel pişmiş fileto tavuk.',
         calories: 450,
         nutrients: 'Protein, Carbs, Fat',
+        nutrientsTr: 'Protein, Karbonhidrat, Yağ',
         rating: 4.2,
         isLiked: true,
         priceTL: 110.0,
         priceUSD: 3.95,
-        category: FoodCategory.Ingredient,
+        category: FoodCategory.ingredient,
         isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/lettuce.png',
         name: 'Shredded Lettuce',
+        nameTr: 'Kıvırcık Marul',
         description: 'Just healthy.',
+        descriptionTr: 'Sadece sağlıklı.',
         calories: 450,
         nutrients: 'Protein, Carbs, Fat',
+        nutrientsTr: 'Protein, Karbonhidrat, Yağ',
         rating: 4.2,
         isLiked: true,
         priceTL: 110.0,
         priceUSD: 3.95,
-        category: FoodCategory.Ingredient,
+        category: FoodCategory.ingredient,
         isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/tomato.png',
         name: 'Italian Tomato',
+        nameTr: 'Domates',
         description: 'Very healty.',
+        descriptionTr: 'Çok sağlıklı',
         calories: 450,
+        nutrientsTr: 'Protein, Karbonhidrat, Yağ',
         nutrients: 'Protein, Carbs, Fat',
         rating: 4.2,
         isLiked: true,
         priceTL: 110.0,
         priceUSD: 3.95,
-        category: FoodCategory.Ingredient,
+        category: FoodCategory.ingredient,
         isInCart: false,
       ),
       FoodItem(
         imageName: 'assets/images/ingredients/temp/mayonnaise.png',
         name: 'Mayonnaise',
+        nameTr: 'Mayonez',
         description: 'Goes perfcet with some fries.',
+        descriptionTr: 'Patateslerin vazgeçilmezi.',
         calories: 450,
         nutrients: 'Protein, Carbs, Fat',
+        nutrientsTr: 'Protein, Karbonhidrat, Yağ',
         rating: 4.2,
         isLiked: true,
         priceTL: 110.0,
         priceUSD: 3.95,
-        category: FoodCategory.Ingredient,
+        category: FoodCategory.ingredient,
         isInCart: false,
       ),
     ];
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
       appBar: AppBar(
-        backgroundColor: const Color(0xaaff7700),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         elevation: 0,
         centerTitle: true,
         title: Text(
-          food.name,
-          style: const TextStyle(
-            color: Colors.white,
+          isTurkish ? food.nameTr : food.name,
+          style: TextStyle(
+            //color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
       ),
       body: Container(
-        color: Color(0xaaff7700),
+        color: Theme.of(context).colorScheme.secondary,
         child: Column(
           children: [
             const SizedBox(height: 12),
@@ -100,12 +118,12 @@ class IngredientsScreen extends StatelessWidget {
                 children: [
                   Image.asset(food.imageName, width: 220, fit: BoxFit.cover),
                   const SizedBox(height: 10),
-                  const Text(
-                    "INGREDIENTS",
+                  Text(
+                    translate('ingredients'),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      //color: Theme.of(context).colorScheme.primary,
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -141,9 +159,9 @@ class IngredientsScreen extends StatelessWidget {
                         tag: '${item.name}3',
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xccff7700),
+                            color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.circular(24),
-                            boxShadow: const [
+                            boxShadow: [
                               BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 8,
@@ -157,10 +175,12 @@ class IngredientsScreen extends StatelessWidget {
                               Image.asset(item.imageName, width: 80),
                               const SizedBox(height: 8),
                               Text(
-                                item.name,
+                                isTurkish ? item.nameTr : item.name,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   fontSize: 14,
                                   letterSpacing: 1,
                                 ),
@@ -177,9 +197,9 @@ class IngredientsScreen extends StatelessWidget {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xccff7700),
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
                               color: Colors.black12,
                               blurRadius: 8,
@@ -190,12 +210,14 @@ class IngredientsScreen extends StatelessWidget {
                         child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Text(
-                                "VIEW\nNUTRITION\nSUMMARY",
+                                translate('view_nutrition_summary'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
                                   letterSpacing: 1.2,
@@ -205,7 +227,7 @@ class IngredientsScreen extends StatelessWidget {
                               Icon(
                                 Icons.arrow_forward,
                                 size: 32,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             ],
                           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kendin_ye/core/localization/app_localizations.dart';
+import 'package:kendin_ye/data/globals.dart';
 import 'package:kendin_ye/data/models/food_item.dart';
 import 'package:kendin_ye/presentation/widgets/food_card.dart';
-//import '../../core/localization/app_localizations.dart';
 
 class CategoryScreen extends StatelessWidget {
   final FoodCategory category;
@@ -10,24 +11,28 @@ class CategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final t = AppLocalizations.of(context).translate;
-    final filteredItems = foodItems
+    var filteredItems = globalFoodItems
         .where((item) => item.category == category)
         .toList();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFF7700),
+        backgroundColor: Theme.of(context).primaryColor,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
         title: Text(
-          category.name,
-          style: const TextStyle(
+          _translateCategoryName(
+            category,
+            AppLocalizations.of(context).isTurkish,
+          ),
+          style: TextStyle(
             fontFamily: 'SegoeUI',
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
       ),
@@ -45,5 +50,26 @@ class CategoryScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _translateCategoryName(FoodCategory category, bool isTurkish) {
+    switch (category) {
+      case FoodCategory.burger:
+        return isTurkish ? 'Burgerler' : 'Burgers';
+      case FoodCategory.chicken:
+        return isTurkish ? 'Tavuklar' : 'Chickens';
+      case FoodCategory.fries:
+        return isTurkish ? 'Kızartmalar' : 'Fries';
+      case FoodCategory.sandwich:
+        return isTurkish ? 'Sandviçler' : 'Sandwiches';
+      case FoodCategory.soda:
+        return isTurkish ? 'Gazlı İçecekler' : 'Sodas';
+      case FoodCategory.breakfast:
+        return isTurkish ? 'Kahvaltılar' : 'Breakfasts';
+      case FoodCategory.ingredient:
+        return isTurkish ? 'İçerikler' : 'Ingredients';
+      case FoodCategory.sushi:
+        return isTurkish ? 'Suşi' : 'Sushi';
+    }
   }
 }

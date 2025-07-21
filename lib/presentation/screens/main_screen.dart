@@ -1,12 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:kendin_ye/core/localization/app_localizations.dart';
+import 'package:kendin_ye/data/globals.dart';
 import 'package:kendin_ye/data/models/food_item.dart';
 import 'package:kendin_ye/data/models/user.dart';
-import 'package:kendin_ye/presentation/screens/burger_screen.dart';
-import 'package:kendin_ye/presentation/screens/pizza_screen.dart';
-import 'package:kendin_ye/presentation/screens/sushi_screen.dart';
-import 'package:kendin_ye/presentation/widgets/custom_bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
   final User user;
@@ -18,14 +17,17 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
+  late User currentUser;
   late AnimationController _animationController;
   late Animation<double> animation;
   late Animation<double> scalAnimation;
-
+  late Future<List<FoodItem>> _futureItems;
   bool isSideMenuClosed = true;
 
   @override
   void initState() {
+    currentUser = widget.user;
+
     _animationController =
         AnimationController(vsync: this, duration: Duration(microseconds: 200))
           ..addListener(() {
@@ -44,7 +46,16 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
 
+    _futureItems = loadFoodItems(context);
     super.initState();
+  }
+
+  Future<List<FoodItem>> loadFoodItems(BuildContext context) async {
+    final jsonString = await DefaultAssetBundle.of(
+      context,
+    ).loadString('assets/data/food_items.json');
+    final List<dynamic> jsonList = jsonDecode(jsonString);
+    return jsonList.map((e) => FoodItem.fromJson(e)).toList();
   }
 
   @override
@@ -53,12 +64,29 @@ class _MainScreenState extends State<MainScreen>
     super.dispose();
   }
 
-  Widget _buildContentByIndex(int index) {
+  /*String _imagePath(String original) {
+    if (original.isEmpty) {
+      return original;
+    }
+    if (AppLocalizations.of(context).isRealistic) {
+      final segments = original.split('/');
+      if (segments.length > 1 &&
+          (segments.contains('buns') || segments.contains('burger_patty'))) {
+        // insert 'realistic' folder before the file name
+        segments.insert(segments.length - 1, 'realistic');
+        return segments.join('/');
+      }
+    }
+    return original;
+  }*/
+
+  //todo bottom navbar ekledikten sonra bu şekil
+  /*Widget _buildContentByIndex(int index) {
     switch (index) {
       case 2:
         return SafeArea(
           child: Container(
-            color: Color(0xFFFFFAF0), //white
+            color: Theme.of(context).secondary, //white
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -83,7 +111,7 @@ class _MainScreenState extends State<MainScreen>
     }
   }
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 0;*/
 
   @override
   Widget build(BuildContext context) {
@@ -107,56 +135,72 @@ class _MainScreenState extends State<MainScreen>
           });
         },
       ),*/
-      backgroundColor: const Color(0xFFFFC58B),
-      body: MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: Stack(
-          children: [
-            AnimatedPositioned(
-              duration: Duration(microseconds: 200),
-              curve: Curves.fastOutSlowIn,
-              width: 288,
-              left: isSideMenuClosed ? -288 : 0,
-              height: MediaQuery.of(context).size.height,
-              child: _buildShoppingCart(),
-            ),
-            Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(animation.value - 30 * animation.value * pi / 180),
-              child: Transform.translate(
-                offset: Offset(animation.value * 265, 0),
-                child: Transform.scale(
-                  scale: scalAnimation.value,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      isSideMenuClosed ? 0 : 24,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      body: FutureBuilder<List<FoodItem>>(
+        future: _futureItems,
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          globalFoodItems = snapshot.data!;
+          return MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: Stack(
+              children: [
+                AnimatedPositioned(
+                  duration: Duration(microseconds: 200),
+                  curve: Curves.fastOutSlowIn,
+                  width: 288,
+                  left: isSideMenuClosed ? -288 : 0,
+                  height: MediaQuery.of(context).size.height,
+                  child: _buildShoppingCart(),
+                ),
+                Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateY(
+                      animation.value - 30 * animation.value * pi / 180,
                     ),
-                    child: SafeArea(
-                      child: Container(
-                        color: Color(0xFFFFFAF0), //white
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildMyAppBar(context),
-                            _buildCategoryIcons(context),
-                            _buildSearchBar(),
-                            _buildBestDealsSection(),
-                            const SizedBox(height: 8),
-                            Expanded(child: _buildFoodList()),
-                          ],
+                  child: Transform.translate(
+                    offset: Offset(animation.value * 265, 0),
+                    child: Transform.scale(
+                      scale: scalAnimation.value,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          isSideMenuClosed ? 0 : 24,
                         ),
+                        child: SafeArea(
+                          child: Container(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surface, //white
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildMyAppBar(context),
+                                _buildCategoryIcons(context),
+                                _buildSearchBar(),
+                                _buildBestDealsSection(),
+                                const SizedBox(height: 8),
+                                Expanded(child: _buildFoodList()),
+                              ],
+                            ),
+                          ),
+                        ),
+                        //_buildContentByIndex(_selectedIndex),
                       ),
                     ),
-                    //_buildContentByIndex(_selectedIndex),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -165,63 +209,26 @@ class _MainScreenState extends State<MainScreen>
     return Material(
       elevation: 4,
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-      color: const Color(0xFFFF7700),
+      color: Theme.of(context).primaryColor,
       child: Container(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-        height: kToolbarHeight + 28, // similar to AppBar height
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 32),
+        height: kToolbarHeight + 48, // similar to AppBar height
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${AppLocalizations.of(context).translate("hello")}, ${widget.user.firstName}!',
-              style: const TextStyle(
+              '${AppLocalizations.of(context).translate("hello")}, ${currentUser.firstName}!',
+              style: TextStyle(
                 fontFamily: 'SegoeUI',
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
             Row(
               children: [
                 // Cart Icon with badge
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.shopping_cart),
-                      color: Colors.white,
-                      onPressed: () {
-                        if (isSideMenuClosed) {
-                          _animationController.forward();
-                        } else {
-                          _animationController.reverse();
-                        }
-                        setState(() {
-                          isSideMenuClosed = !isSideMenuClosed;
-                        });
-                      },
-                    ),
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: const Text(
-                          '3',
-                          style: TextStyle(color: Colors.white, fontSize: 10),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                _buildCartIcon(context),
 
                 // Profile Popup
                 PopupMenuButton<int>(
@@ -230,7 +237,10 @@ class _MainScreenState extends State<MainScreen>
                     borderRadius: BorderRadius.circular(10),
                   ),
                   icon: CircleAvatar(
-                    backgroundImage: AssetImage(widget.user.profileImage),
+                    backgroundImage:
+                        currentUser.profileImage.startsWith('assets/')
+                        ? AssetImage(currentUser.profileImage)
+                        : FileImage(File(currentUser.profileImage)),
                   ),
                   itemBuilder: (context) => [
                     PopupMenuItem<int>(
@@ -239,9 +249,10 @@ class _MainScreenState extends State<MainScreen>
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            backgroundImage: AssetImage(
-                              widget.user.profileImage,
-                            ),
+                            backgroundImage:
+                                currentUser.profileImage.startsWith('assets/')
+                                ? AssetImage(currentUser.profileImage)
+                                : FileImage(File(currentUser.profileImage)),
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -254,7 +265,10 @@ class _MainScreenState extends State<MainScreen>
                       value: 1,
                       child: Row(
                         children: [
-                          const Icon(Icons.settings, color: Colors.black54),
+                          Icon(
+                            Icons.settings,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           const SizedBox(width: 10),
                           Text(
                             AppLocalizations.of(context).translate("settings"),
@@ -267,7 +281,10 @@ class _MainScreenState extends State<MainScreen>
                       value: 2,
                       child: Row(
                         children: [
-                          const Icon(Icons.logout, color: Colors.black54),
+                          Icon(
+                            Icons.logout,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           const SizedBox(width: 10),
                           Text(
                             AppLocalizations.of(context).translate("logout"),
@@ -276,8 +293,32 @@ class _MainScreenState extends State<MainScreen>
                       ),
                     ),
                   ],
-                  onSelected: (value) {
-                    if (value == 2) {
+                  onSelected: (value) async {
+                    if (value == 0) {
+                      // Navigate and await updated user
+                      final updated =
+                          await Navigator.of(
+                                context,
+                              ).pushNamed('/profile', arguments: currentUser)
+                              as User?;
+                      if (updated != null) {
+                        setState(() {
+                          currentUser = updated;
+                        });
+                      }
+                    } else if (value == 1) {
+                      // Navigate and await updated user
+                      final updated =
+                          await Navigator.of(
+                                context,
+                              ).pushNamed('/settings', arguments: currentUser)
+                              as User?;
+                      if (updated != null) {
+                        setState(() {
+                          currentUser = updated;
+                        });
+                      }
+                    } else if (value == 2) {
                       Navigator.pushReplacementNamed(context, '/');
                     }
                   },
@@ -293,34 +334,35 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildCategoryIcons(BuildContext context) {
     final List<Map<String, dynamic>> categories = [
       {
-        'label': 'Burgers',
+        'label': AppLocalizations.of(context).translate("burger"),
         'icon': 'assets/icons/burger_icon.png',
-        'category': FoodCategory.Burger,
+        'category': FoodCategory.burger,
       },
       {
-        'label': 'Chicken',
+        'label': AppLocalizations.of(context).translate("chicken"),
         'icon': 'assets/icons/chicken_icon.png',
-        'category': FoodCategory.Chicken,
+        'category': FoodCategory.chicken,
       },
       {
-        'label': 'Fries',
+        'label': AppLocalizations.of(context).translate("fries"),
         'icon': 'assets/icons/fries_icon.png',
-        'category': FoodCategory.Fries,
+        'category': FoodCategory.fries,
       },
       {
-        'label': 'Sandwich',
+        'label': AppLocalizations.of(context).translate("sandwich"),
         'icon': 'assets/icons/sandwic_icon.png',
-        'category': FoodCategory.Sandwich,
+        'category': FoodCategory.sandwich,
       },
       {
-        'label': 'Soda',
+        'label': AppLocalizations.of(context).translate("soda"),
         'icon': 'assets/icons/soda_icon.png',
-        'category': FoodCategory.Soda,
+        'category': FoodCategory.soda,
       },
       {
-        'label': 'Breakfast',
+        'label': AppLocalizations.of(context).translate("breakfast"),
+
         'icon': 'assets/icons/breakfast_icon.png',
-        'category': FoodCategory.Breakfast,
+        'category': FoodCategory.breakfast,
       },
     ];
 
@@ -343,15 +385,20 @@ class _MainScreenState extends State<MainScreen>
                   },
                   child: Column(
                     children: [
-                      Image.asset(cat['icon'], width: 30, height: 30),
+                      Image.asset(
+                        cat['icon'],
+                        width: 30,
+                        height: 30,
+                        color: Theme.of(context).primaryColor,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         cat['label'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'SegoeUI',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xffff7700),
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
                     ],
@@ -374,12 +421,12 @@ class _MainScreenState extends State<MainScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Pizza",
-                      style: const TextStyle(
+                      AppLocalizations.of(context).translate("pizza"),
+                      style: TextStyle(
                         fontFamily: 'SegoeUI',
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xffff7700),
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ],
@@ -398,15 +445,44 @@ class _MainScreenState extends State<MainScreen>
                       "assets/icons/burger_renkli.png",
                       width: 30,
                       height: 30,
+                      fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Burger",
-                      style: const TextStyle(
+                      AppLocalizations.of(context).translate("burger"),
+                      style: TextStyle(
                         fontFamily: 'SegoeUI',
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xffff7700),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/sushi');
+                },
+                child: Column(
+                  children: [
+                    Image.asset(
+                      "assets/icons/sushi_renkli.png",
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      AppLocalizations.of(context).translate("sushi"),
+                      style: TextStyle(
+                        fontFamily: 'SegoeUI',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ],
@@ -448,13 +524,19 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget _buildBestDealsSection() {
+    final nonIngredientItems = globalFoodItems
+        .where((f) => f.category != FoodCategory.ingredient)
+        .toList();
+    nonIngredientItems.sort(
+      ((a, b) => (-1 * a.rating).compareTo((-1 * b.rating))),
+    ); //en son burda kaldım
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Text(
-            'Best Deals!',
+            AppLocalizations.of(context).translate("best_deals"),
             style: TextStyle(
               fontFamily: 'SegoeUI',
               fontSize: 16,
@@ -467,9 +549,11 @@ class _MainScreenState extends State<MainScreen>
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: foodItems.length,
+            itemCount: nonIngredientItems.length > 10
+                ? 10
+                : nonIngredientItems.length,
             itemBuilder: (context, index) {
-              final item = foodItems[index];
+              final item = nonIngredientItems[index];
               return Column(
                 children: [
                   ClipRRect(
@@ -495,16 +579,22 @@ class _MainScreenState extends State<MainScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    item.name.length > 15
-                        ? "${item.name.substring(0, 12)}..."
-                        : item.name,
+                    AppLocalizations.of(context).isTurkish
+                        ? (item.nameTr.length > 15
+                              ? "${item.nameTr.substring(0, 12)}..."
+                              : item.nameTr)
+                        : (item.name.length > 15
+                              ? "${item.name.substring(0, 12)}..."
+                              : item.name),
                     style: const TextStyle(fontSize: 12),
                   ),
                   Text(
-                    '\$. ${item.priceUSD.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    AppLocalizations.of(context).isTurkish
+                        ? '${item.priceTL.toStringAsFixed(2)} ₺'
+                        : '\$ ${item.priceUSD.toStringAsFixed(2)}',
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xffff7700),
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                 ],
@@ -518,11 +608,14 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Widget _buildFoodList() {
+    final nonIngredientItems = globalFoodItems
+        .where((f) => f.category != FoodCategory.ingredient)
+        .toList();
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: foodItems.length,
+      itemCount: nonIngredientItems.length,
       itemBuilder: (context, index) {
-        final item = foodItems[index];
+        final item = nonIngredientItems[index];
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
@@ -554,7 +647,9 @@ class _MainScreenState extends State<MainScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.name,
+                      AppLocalizations.of(context).isTurkish
+                          ? item.nameTr
+                          : item.name,
                       style: const TextStyle(
                         fontFamily: 'SegoeUI',
                         fontWeight: FontWeight.bold,
@@ -562,19 +657,13 @@ class _MainScreenState extends State<MainScreen>
                     ),
                     Row(
                       children: [
-                        const Text(
-                          '\$. ',
+                        Text(
+                          AppLocalizations.of(context).isTurkish
+                              ? '${item.priceTL.toStringAsFixed(2)} ₺'
+                              : '\$ ${item.priceUSD.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xffff7700),
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          item.priceUSD.toStringAsFixed(2),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xffff7700),
+                            color: Theme.of(context).primaryColor,
                             fontSize: 18,
                           ),
                         ),
@@ -584,7 +673,9 @@ class _MainScreenState extends State<MainScreen>
                       children: [
                         Text(
                           item.rating.toString(),
-                          style: const TextStyle(color: Color(0xffff7700)),
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Row(
@@ -603,16 +694,42 @@ class _MainScreenState extends State<MainScreen>
                   ],
                 ),
               ),
-              const Icon(Icons.remove_circle_outline, color: Color(0xffff7700)),
+              /*const Icon(Icons.remove_circle_outline, color: Theme.of(context).primaryColor),
               const SizedBox(width: 4),
               const Text('--'),
               const SizedBox(width: 4),
-              const Icon(Icons.add_circle_outline, color: Color(0xffff7700)),
-              const SizedBox(width: 8),
+              const Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
+              const SizedBox(width: 8),*/
+              ElevatedButton(
+                onPressed: () {
+                  item.isInCart = true;
+                  //adet++ in cart
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: Duration(seconds: 1),
+                      content: Text(
+                        "${AppLocalizations.of(context).isTurkish ? item.nameTr : item.name} ${AppLocalizations.of(context).translate("added_to_cart")}",
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
+                child: Text(
+                  AppLocalizations.of(context).translate("add_to_cart"),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
               IconButton(
                 icon: Icon(
                   item.isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: item.isLiked ? Colors.red : Colors.black54,
+                  color: item.isLiked
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
                 onPressed: () {
                   setState(() {
@@ -629,14 +746,16 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildShoppingCart() {
     // Filter the cart items
-    final List<FoodItem> cartItems = foodItems
+
+    //todo bunu map e çevir <fooditem, int adet>
+    final List<FoodItem> cartItems = globalFoodItems
         .where((item) => item.isInCart)
         .toList();
 
     return Container(
       width: 288,
       height: double.infinity,
-      color: const Color(0xFFFFC58B), // Light peach background
+      color: Theme.of(context).colorScheme.secondary, // Light peach background
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -646,20 +765,23 @@ class _MainScreenState extends State<MainScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
-                    "Shopping Cart",
+                    AppLocalizations.of(context).translate("shopping_cart"),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF5C3D00),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
                 IconButton(
                   iconSize: 40,
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   onPressed: () {
                     if (isSideMenuClosed) {
                       _animationController.forward();
@@ -679,7 +801,11 @@ class _MainScreenState extends State<MainScreen>
             // Cart List
             Expanded(
               child: cartItems.isEmpty
-                  ? const Center(child: Text("Your cart is empty"))
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context).translate("empty_cart"),
+                      ),
+                    )
                   : ListView.builder(
                       itemCount: cartItems.length,
                       itemBuilder: (context, index) {
@@ -690,15 +816,20 @@ class _MainScreenState extends State<MainScreen>
                           onDismissed: (direction) {
                             setState(() {
                               // Set isInCart = false in the original list
-                              final int originalIndex = foodItems.indexOf(item);
+                              final int originalIndex = globalFoodItems.indexOf(
+                                item,
+                              );
                               if (originalIndex != -1) {
-                                foodItems[originalIndex].isInCart = false;
+                                globalFoodItems[originalIndex].isInCart = false;
                               }
                             });
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("${item.name} removed from cart"),
+                                duration: Duration(seconds: 1),
+                                content: Text(
+                                  "${AppLocalizations.of(context).isTurkish ? item.nameTr : item.name} ${AppLocalizations.of(context).translate("removed_from_cart")}",
+                                ),
                               ),
                             );
                           },
@@ -706,9 +837,9 @@ class _MainScreenState extends State<MainScreen>
                             color: Colors.red,
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: const Icon(
+                            child: Icon(
                               Icons.delete,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                           child: ListTile(
@@ -718,9 +849,15 @@ class _MainScreenState extends State<MainScreen>
                               height: 50,
                               fit: BoxFit.cover,
                             ),
-                            title: Text(item.name),
+                            title: Text(
+                              AppLocalizations.of(context).isTurkish
+                                  ? item.nameTr
+                                  : item.name,
+                            ),
                             subtitle: Text(
-                              "₺${item.priceTL.toStringAsFixed(2)}",
+                              AppLocalizations.of(context).isTurkish
+                                  ? "${item.priceTL.toStringAsFixed(2)} ₺"
+                                  : "\$ ${item.priceUSD.toStringAsFixed(2)}",
                             ),
                           ),
                         );
@@ -736,20 +873,22 @@ class _MainScreenState extends State<MainScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total:',
+                      Text(
+                        '${AppLocalizations.of(context).translate("total")}:',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5C3D00),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Text(
-                        '₺${cartItems.fold(0.0, (sum, item) => sum + item.priceTL).toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        AppLocalizations.of(context).isTurkish
+                            ? '${cartItems.fold(0.0, (sum, item) => sum + item.priceTL).toStringAsFixed(2)} ₺'
+                            : '\$ ${cartItems.fold(0.0, (sum, item) => sum + item.priceUSD).toStringAsFixed(2)}',
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5C3D00),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -759,7 +898,7 @@ class _MainScreenState extends State<MainScreen>
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffff7700),
+                        backgroundColor: Theme.of(context).primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -768,12 +907,12 @@ class _MainScreenState extends State<MainScreen>
                       onPressed: () {
                         // Add checkout logic here
                       },
-                      child: const Text(
-                        'Checkout',
+                      child: Text(
+                        AppLocalizations.of(context).translate("checkout"),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                     ),
@@ -786,6 +925,49 @@ class _MainScreenState extends State<MainScreen>
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCartIcon(BuildContext context) {
+    final cartCount = globalFoodItems.where((i) => i.isInCart).length;
+    return Stack(
+      children: [
+        IconButton(
+          icon: Icon(Icons.shopping_cart),
+          color: Theme.of(context).colorScheme.onPrimary,
+          onPressed: () {
+            if (isSideMenuClosed) {
+              _animationController.forward();
+            } else {
+              _animationController.reverse();
+            }
+            setState(() {
+              isSideMenuClosed = !isSideMenuClosed;
+            });
+          },
+        ),
+        if (cartCount > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              child: Text(
+                '$cartCount',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
